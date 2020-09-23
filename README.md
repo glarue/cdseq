@@ -1,3 +1,4 @@
+```
 usage: cdseq [-h] [-t] [-e] [-i] [-c] [-v] [-n] [--introns]
              [--truncate_introns int_length]
              genome annotation
@@ -30,3 +31,4 @@ optional arguments:
   --truncate_introns int_length
                         truncate intron sequences to length {int_length} (or
                         {int_length} -1 if odd) (default: None)
+```
