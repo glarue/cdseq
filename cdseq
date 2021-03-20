@@ -4,7 +4,7 @@
 # the above uses specific Python version; allows script name in top
 
 """
-usage: cdseq [-h] [-t] [-e] [-i] [-c] [-v] [-n] [--introns]
+usage: cdseq [-h] [-t] [-e] [-i] [-c] [-v] [-n] [-l] [--introns]
              [--truncate_introns int_length]
              genome annotation
 
@@ -31,11 +31,14 @@ optional arguments:
   -n, --non_coding      include non-coding (intronic, UTR, etc.) sequence;
                         uses only the coordinates of the transcript itself
                         (incompatible with --introns) (default: False)
+  -l, --leave_lowercase
+                        leave lowercase genomic sequence intact in output
+                        (ignored if --introns) (default: False)
   --introns             include intron sequences in lowercase (incompatible
                         with -n) (default: False)
   --truncate_introns int_length
-                        truncate intron sequences to length {int_length} (or
-                        {int_length} -1 if odd) (default: None)
+                        truncate intron sequences to length {int_length}
+                        (or {int_length} -1 if odd) (default: None)
 
 """
 
