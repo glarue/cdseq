@@ -285,7 +285,7 @@ def consensus_strand(features):
     return [s[0] for s in consensus_strand]
 
 
-def get_coding_seq(region_seq, features, introns=False):
+def get_coding_seq(region_seq, features, introns=False, leave_lower=False):
     if introns is not False and len(features) > 1:
         intron_feats = get_introns(features)
         # interleave introns into other features in order of creation
@@ -293,15 +293,18 @@ def get_coding_seq(region_seq, features, introns=False):
             f for pair in 
             zip_longest(features, intron_feats) for f in pair if f]
     seq_list = []
+
     for f in features:
         tag = f.feat_type
         chunk = get_subseq(region_seq, f.start, f.stop)
         if f.strand == '-':
             chunk = rev_comp(chunk)
-        if introns is True and tag == 'exon':
+        if introns is True and tag != 'intron':
             # ensure that exonic sequence is upper case if introns
             # are being included to avoid lowercase characters in 
             # the original genome file being confused for introns
+            chunk = chunk.upper()
+        elif tag != 'intron' and leave_lower is False:
             chunk = chunk.upper()
         if tag == 'intron':
             chunk = chunk.lower()
@@ -327,7 +330,7 @@ def sorted_in_coding_direction(obj_list):
             "(parent feature: '{}'); "
             "defaulting to feature order in source file".format(next(iter(obj_list)).parent),
             file=sys.stderr)
-        # default to sorting for + strand if mixed strands
+        # default to sorting in order of input file if mixed strands found
         return sorted(obj_list, key=attrgetter('line_number'))
     else:
         strand = strands[0]
@@ -347,7 +350,8 @@ def format_output(
     t_dict, 
     non_coding=False, 
     introns=False, 
-    verbose=False):
+    verbose=False,
+    leave_lower=False):
     t_info = t_dict['info']
     t_name = t_info['name']
     strand = t_info['strand']
@@ -358,7 +362,8 @@ def format_output(
     else:
         feats = t_dict['children']
     feats = sorted_in_coding_direction(feats)
-    seq = get_coding_seq(region_seq, feats, introns=introns)
+    seq = get_coding_seq(
+        region_seq, feats, introns=introns, leave_lower=leave_lower)
     if TRANSLATE is True:
         seq = translate(seq)
     length = str(len(seq))
@@ -421,7 +426,17 @@ parser.add_argument(
     action='store_true',
     help=(
         'include non-coding (intronic, UTR, etc.) sequence; uses only the '
-        'coordinates of the transcript itself (incompatible with --introns)')
+        'coordinates of the transcript itself (incompatible with --introns)'
+    )
+)
+parser.add_argument(
+    '-l',
+    '--leave_lowercase',
+    help=(
+        'leave lowercase genomic sequence intact in output (ignored if '
+        '--introns)'
+    ),
+    action='store_true'
 )
 parser.add_argument(
     '--introns',
@@ -456,6 +471,7 @@ FILTER_BY_COORDS = args.coord_based_isoforms
 NON_CODING = args.non_coding
 INTRONS = args.introns
 INTRON_LENGTH = args.truncate_introns
+LEAVE_LOWER = args.leave_lowercase
 
 if INTRONS and INTRON_LENGTH is not None:
     HALF_LENGTH = floor(INTRON_LENGTH / 2)
@@ -506,7 +522,8 @@ for region, region_seq in fasta_parse(flex_open(GENOME)):
             t_dict, 
             non_coding=NON_CODING, 
             introns=INTRONS, 
-            verbose=VERBOSE), 
+            verbose=VERBOSE,
+            leave_lower=LEAVE_LOWER), 
             flush=True)
         seq_count += 1
     total_regions -= 1
