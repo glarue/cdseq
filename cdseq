@@ -74,6 +74,7 @@ def get_transcripts(gff, child_type):
     feature_info = defaultdict(dict)
     grandparents = defaultdict(dict)
     child_type_found = False
+    seen_feat_types = set()
     regions_with_content = set()
     orphans = 0
     with flex_open(gff) as annot:
@@ -84,6 +85,7 @@ def get_transcripts(gff, child_type):
             except TypeError:
                 continue
             parents = feat.parent if feat.parent else [feat.name]
+            seen_feat_types.add(feat.feat_type)
             for parent in parents:
                 if feat.feat_type not in all_child_types:
                     info_dict = {
@@ -166,7 +168,7 @@ def get_transcripts(gff, child_type):
                 tr['info']['parent'] = grandparents[region][name]
             final_transcripts[region][name] = tr
 
-    return final_transcripts, child_type_found
+    return final_transcripts, child_type_found, seen_feat_types
 
 
 def overlap_check(a, b):
@@ -494,7 +496,8 @@ child_types = ('exon', 'cds')
 feature_obj = namedtuple(
     'feature', ['feat_type', 'start', 'stop', 'strand', 'line_number'])
 
-transcripts, child_found = get_transcripts(ANNOTATION, child_type)
+transcripts, child_found, seen_feat_types = get_transcripts(
+    ANNOTATION, child_type)
 
 # ensure there are features we can use in file
 if not child_found:
@@ -503,7 +506,11 @@ if not child_found:
         '[!] No {} entries found in annotation; using {} instead'.format(
             child_type, alt_child), file=sys.stderr)
     child_type = alt_child
-    transcripts, child_found = get_transcripts(ANNOTATION, child_type)
+    if child_type not in seen_feat_types:
+        child_found = False
+    else:
+        transcripts, child_found, seen_feat_types = get_transcripts(
+            ANNOTATION, child_type)
     if not child_found:
         sys.exit('[!] No {} entries found in annotation.'.format(child_type))
 
