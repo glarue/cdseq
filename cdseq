@@ -520,6 +520,11 @@ if not ISOFORMS:
 seq_count = 0
 total_regions = len(transcripts)
 
+#TODO change handling of transcripts with trans-splicing,
+# maybe by using a heuristic to check if a transcript structure is
+# "complete" using only sequences from the region sequence in the loop and 
+# if not, save it for explicit processing later on (there shouldn't be
+# too many instances in any given genome, minus e.g. Trypanosomes)
 for region, region_seq in fasta_parse(flex_open(GENOME)):
     if region not in transcripts:
         continue
@@ -531,7 +536,7 @@ for region, region_seq in fasta_parse(flex_open(GENOME)):
             region_seq, 
             t_dict, 
             non_coding=NON_CODING, 
-            introns=INTRONS, 
+            introns=INTRONS,
             verbose=VERBOSE,
             leave_lower=LEAVE_LOWER), 
             flush=True)
