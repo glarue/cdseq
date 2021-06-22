@@ -356,7 +356,9 @@ def format_output(
     non_coding=False, 
     introns=False, 
     verbose=False,
-    leave_lower=False):
+    leave_lower=False,
+    tag=''
+):
     t_info = t_dict['info']
     t_name = t_info['name']
     strand = t_info['strand']
@@ -382,7 +384,7 @@ def format_output(
         header_bits.append(coord_string)
     header = '\t'.join(header_bits)
 
-    return '>{}\n{}'.format(header, seq)
+    return '>{}{}\n{}'.format(tag, header, seq)
 
 
 parser = argparse.ArgumentParser(
@@ -424,6 +426,13 @@ parser.add_argument(
     '--verbose_headers',
     action='store_true',
     help='include coordinate info in output headers'
+)
+parser.add_argument(
+    '--tag',
+    help='prepend headers with specified <tag>',
+    type=str,
+    metavar='tag',
+    default=None
 )
 parser.add_argument(
     '-n',
@@ -477,6 +486,9 @@ NON_CODING = args.non_coding
 INTRONS = args.introns
 INTRON_LENGTH = args.truncate_introns
 LEAVE_LOWER = args.leave_lowercase
+HEADER_TAG = args.tag
+if not HEADER_TAG:
+    HEADER_TAG = ''
 
 if INTRONS and INTRON_LENGTH is not None:
     HALF_LENGTH = floor(INTRON_LENGTH / 2)
@@ -538,7 +550,8 @@ for region, region_seq in fasta_parse(flex_open(GENOME)):
             non_coding=NON_CODING, 
             introns=INTRONS,
             verbose=VERBOSE,
-            leave_lower=LEAVE_LOWER), 
+            leave_lower=LEAVE_LOWER,
+            tag=HEADER_TAG), 
             flush=True)
         seq_count += 1
     total_regions -= 1
