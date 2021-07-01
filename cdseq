@@ -422,10 +422,10 @@ parser.add_argument(
     action='store_true'
 )
 parser.add_argument(
-    '-v',
-    '--verbose_headers',
+    '-m',
+    '--minimal_headers',
     action='store_true',
-    help='include coordinate info in output headers'
+    help='omit detailed coordinate information from output headers'
 )
 parser.add_argument(
     '--tag',
@@ -479,7 +479,7 @@ ANNOTATION = args.annotation
 GENOME = args.genome
 TRANSLATE = args.translate
 EXON_DEF = args.exon
-VERBOSE = args.verbose_headers
+VERBOSE = not args.minimal_headers
 ISOFORMS = args.isoforms
 FILTER_BY_COORDS = args.coord_based_isoforms
 NON_CODING = args.non_coding
