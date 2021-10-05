@@ -51,12 +51,16 @@ __license__ = 'GPL'
 import sys
 import argparse
 import time
+import os
 from collections import defaultdict, namedtuple, Counter
 from itertools import zip_longest
 from operator import itemgetter, attrgetter
 from math import floor
 from biogl import (
-    GxfParse, flex_open, fasta_parse, translate, rev_comp, get_runtime, window)
+    GxfParse, flex_open, fasta_parse, 
+    translate, rev_comp, get_runtime, 
+    window, arg_info_header
+)
 
 
 def get_subseq(region_seq, start, stop):
@@ -342,12 +346,12 @@ def sorted_in_coding_direction(obj_list):
         if strand == "-":
             # Want to sort by "first" coord, which for reverse-
             # strand features is the stop
-            coord = "stop"
+            coord = ("stop", "start")
             rev = True
         else:
-            coord = "start"
+            coord = ("start", "stop")
             rev = False
-        return sorted(obj_list, key=attrgetter(coord), reverse=rev)
+        return sorted(obj_list, key=attrgetter(*coord), reverse=rev)
 
 
 def format_output(
@@ -467,6 +471,12 @@ parser.add_argument(
         '(or {int_length} -1 if odd)'
     )
 )
+parser.add_argument(
+    '--print_arg_info',
+    action='store_true',
+    help='print commented argument information before sequence records',
+    default=False
+)
 
 if len(sys.argv) == 1:
     sys.exit(parser.print_help())
@@ -487,6 +497,8 @@ INTRONS = args.introns
 INTRON_LENGTH = args.truncate_introns
 LEAVE_LOWER = args.leave_lowercase
 HEADER_TAG = args.tag
+PRINT_ARG_INFO = args.print_arg_info
+
 if not HEADER_TAG:
     HEADER_TAG = ''
 
@@ -531,6 +543,10 @@ if not ISOFORMS:
 
 seq_count = 0
 total_regions = len(transcripts)
+
+if PRINT_ARG_INFO:
+    arg_info = arg_info_header(args)
+    print(arg_info)
 
 #TODO change handling of transcripts with trans-splicing,
 # maybe by using a heuristic to check if a transcript structure is
