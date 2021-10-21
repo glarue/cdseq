@@ -13,8 +13,8 @@ Otherwise, you can clone the `biogl` repo and source it locally (to run from any
 ### Usage info
 
 ```
-usage: cdseq [-h] [-t] [-e] [-i] [-c] [-v] [-n] [--introns]
-             [--truncate_introns int_length]
+usage: cdseq [-h] [-t] [-e] [-i] [-c] [-m] [--tag tag] [-n] [-l]
+             [--introns] [--truncate_introns int_length] [--print_arg_info]
              genome annotation
 
 Extract transcript/coding sequences from a genome using an annotation file
@@ -34,15 +34,22 @@ optional arguments:
                         detect isoforms by overlapping coordindates in
                         addition to shared parent (useful for annotations
                         without gene entries) (default: False)
-  -v, --verbose_headers
-                        include coordinate info in output headers (default:
-                        False)
+  -m, --minimal_headers
+                        omit detailed coordinate information from output
+                        headers (default: False)
+  --tag tag             prepend headers with specified <tag> (default:
+                        None)
   -n, --non_coding      include non-coding (intronic, UTR, etc.) sequence;
                         uses only the coordinates of the transcript itself
                         (incompatible with --introns) (default: False)
+  -l, --leave_lowercase
+                        leave lowercase genomic sequence intact in output
+                        (ignored if --introns) (default: False)
   --introns             include intron sequences in lowercase (incompatible
                         with -n) (default: False)
   --truncate_introns int_length
-                        truncate intron sequences to length {int_length} (or
-                        {int_length} -1 if odd) (default: None)
+                        truncate intron sequences to length {int_length}
+                        (or {int_length} -1 if odd) (default: None)
+  --print_arg_info      print commented argument information before
+                        sequence records (default: False)
 ```
