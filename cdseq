@@ -94,7 +94,7 @@ def get_transcripts(gff, child_type):
                 continue
             parents = feat.parent if feat.parent else [feat.name]
             seen_feat_types.add(feat.feat_type)
-            for parent in parents:
+            for parent in parents:            
                 if feat.feat_type not in all_child_types:
                     info_dict = {
                         'name': feat.name,
@@ -122,7 +122,7 @@ def get_transcripts(gff, child_type):
                 elif feat.feat_type == child_type:
                     if not child_type_found:
                         child_type_found = True
-                    if not feat.parent:
+                    if not parent:
                         orphans += 1
                         continue
                     start = feat.start
